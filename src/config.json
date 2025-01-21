@@ -1,39 +1,39 @@
 {
   "site": {
-    "url": "https://gyoza.lxchapu.com",
-    "title": "Gyoza",
-    "description": "这是一个使用 Astro 和 React 开发的博客主题。",
+    "url": "https://blog.mytest.cc",
+    "title": "SimonGino",
+    "description": "一只奶牛猫的博客主题。",
     "keywords": "Gyoza,blog,Astro,theme,lxchapu,博客主题",
     "lang": "zh-CN",
     "favicon": "/favicon.ico",
     "appleTouchIcon": "/apple-touch-icon.png"
   },
   "author": {
-    "name": "lxchapu",
-    "twitterId": "@lxchapu",
-    "avatar": "https://s2.loli.net/2024/04/30/ozsnuS5Ihf3xMBG.webp"
+    "name": "Jinx",
+    "twitterId": "@simonginoqaq",
+    "avatar": "https://oss.mytest.cc/2025/01/F6gdmIQaQAAG1gB.jpeg"
   },
   "hero": {
-    "name": "Gyoza",
-    "bio": "A static blog template build with Astro and React.",
+    "name": "SimonGino",
+    "bio": "一只奶牛猫的博客主题",
     "description": "Clean, Cute, Fast.",
     "socials": [
       {
         "name": "Github",
         "icon": "icon-github",
-        "url": "https://github.com/lxchapu/astro-gyoza",
+        "url": "https://github.com/SimonGino",
         "color": "rgb(24, 23, 23)"
       },
       {
         "name": "X",
         "icon": "icon-x",
-        "url": "https://twitter.com/lxchapu",
+        "url": "https://twitter.com/simonginoqaq",
         "color": "rgb(36, 46, 54)"
       },
       {
         "name": "Email",
         "icon": "icon-mail",
-        "url": "mailto:lxchapu@outlook.com",
+        "url": "mailto:rwjeek@gmail.com",
         "color": "rgb(212, 70, 56)"
       }
     ],
