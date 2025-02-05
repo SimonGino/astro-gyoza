@@ -125,7 +125,19 @@ acme.sh --renew -d example.com -d *.example.com --force --ecc
 acme.sh --renew -d example.com -d *.example.com --force
 ```
 
+### 验证证书内容和有效期
+
+```shell
+openssl x509 -in /etc/ssl/web.crt -noout -dates
+```
+
 ## 移除证书
+
+查看证书集合：
+
+```bash
+acme.sh --list
+```
 
 如果需要移除证书：
 
