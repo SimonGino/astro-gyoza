@@ -1,0 +1,4 @@
+title: aicommit
+description: 🤖 支持多个大型语言模型提供商（Qwen、DeepSeek）的AI驱动Git提交信息生成器。通过漂亮的CLI界面，从您的暂存更改中生成有意义的提交信息。
+image: https://images.mytest.cc/20250206030757_989d425d1b3c4d43552d6bdd17b3e033.png
+link: https://github.com/SimonGino/aicommit
