@@ -5,8 +5,7 @@ date: 2024-02-01
 slug: redis-ha-deployment-guide
 featured: true
 draft: false
-categories:
-  - database
+category: database
 tags:
   - 主从复制
   - 哨兵模式

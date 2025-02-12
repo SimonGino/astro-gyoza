@@ -5,8 +5,7 @@ date: 2024-08-23
 slug: docker-elasticsearch-kibana-setup
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - ES集群
   - Kibana

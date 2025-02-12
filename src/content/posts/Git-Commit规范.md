@@ -5,8 +5,7 @@ date: 2023-12-05
 slug: git-commit-guidelines-best-practices
 featured: true
 draft: false
-categories:
-  - git
+category: git
 tags:
   - git commit
   - 代码规范

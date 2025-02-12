@@ -5,8 +5,7 @@ date: 2025-01-03
 slug: github-actions-usage
 featured: true
 draft: false
-categories:
-  - git
+category: git
 tags:
   - GitHub Actions
   - 自动化构建

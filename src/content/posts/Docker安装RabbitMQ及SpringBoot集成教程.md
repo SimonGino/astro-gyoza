@@ -6,11 +6,8 @@ slug: docker-rabbitmq-springboot-integration
 featured: true
 draft: false
 tags:
-  - docker
-categories:
-  - 后端开发
-  - 中间件
-  - 容器化部署
+  - RabbitMQ
+category: docker
 keywords:
   - Docker
   - RabbitMQ

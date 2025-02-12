@@ -5,8 +5,7 @@ date: 2025-01-02
 slug: adguard-home-deploy
 featured: true
 draft: false
-categories:
-  - linux
+category: linux
 tags:
   - AdGuard Home
   - 部署

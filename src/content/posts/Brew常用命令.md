@@ -5,8 +5,7 @@ date: 2024-09-10
 slug: macos-homebrew-complete-guide
 featured: true
 draft: false
-categories:
-  - tools
+category: tools
 tags:
   - 包管理
   - 环境配置

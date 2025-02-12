@@ -5,8 +5,7 @@ date: 2024-12-16
 slug: git-command-cheatsheet
 featured: true
 draft: false
-categories:
-  - git
+category: git
 description: 全面整理Git日常开发中最常用的命令，包括暂存、标签管理、交互式变基、拣选提交、远程仓库操作、别名配置、二分查找等核心功能的详细使用说明
 ---
 

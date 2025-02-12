@@ -5,8 +5,7 @@ date: 2024-08-27
 slug: snell-install
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - snell
   - 代理服务器

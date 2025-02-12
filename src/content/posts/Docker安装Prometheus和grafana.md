@@ -5,8 +5,7 @@ date: 2024-03-13
 slug: docker-prometheus-grafana-setup
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - 监控系统
   - 数据可视化

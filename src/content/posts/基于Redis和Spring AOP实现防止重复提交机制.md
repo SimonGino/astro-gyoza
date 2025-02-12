@@ -11,10 +11,7 @@ tags:
   - AOP
   - Java
   - 分布式锁
-categories:
-  - Java后端开发
-  - 分布式系统
-  - 架构设计
+category: java
 keywords:
   - Redis
   - Spring AOP

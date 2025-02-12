@@ -5,8 +5,7 @@ date: 2023-12-05
 slug: docker-mongodb-setup-guide
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - 数据库部署
   - MongoDB配置

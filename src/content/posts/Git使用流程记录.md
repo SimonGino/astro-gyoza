@@ -5,8 +5,7 @@ date: 2024-07-02
 slug: git-undo-operations-guide
 featured: true
 draft: false
-categories:
-  - git
+category: git
 tags:
   - 版本控制
   - git reset

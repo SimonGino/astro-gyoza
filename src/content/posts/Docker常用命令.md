@@ -5,8 +5,7 @@ date: 2024-09-03
 slug: docker-command-cheatsheet
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - 容器管理
   - 镜像管理

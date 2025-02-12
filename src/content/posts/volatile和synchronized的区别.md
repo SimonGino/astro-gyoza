@@ -5,8 +5,7 @@ date: 2023-02-01
 slug: volatile-vs-synchronized-in-java
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - volatile
   - synchronized

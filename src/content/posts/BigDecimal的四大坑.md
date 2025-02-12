@@ -5,8 +5,7 @@ title: 不掌握BigDecimal的四大坑你敢用吗
 slug: four-major-pitfalls-of-bigdecimal-usage
 featured: true
 draft: false
-categories:
-  - java
+category: java
 description: Dare You Use BigDecimal Without Knowing Its Four Major Pitfalls?
 ---
 

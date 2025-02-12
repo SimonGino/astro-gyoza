@@ -5,8 +5,7 @@ date: 2024-01-01
 slug: nginx-failed-to-parse-pid-causes-and-solutions
 featured: true
 draft: false
-categories:
-  - nginx
+category: nginx
 tags:
   - Nginx配置
   - systemd

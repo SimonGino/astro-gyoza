@@ -5,8 +5,7 @@ date: 2023-12-06
 slug: navicat-import-large-sql-file-solution
 featured: true
 draft: false
-categories:
-  - database
+category: database
 tags:
   - Navicat
   - MySQL配置

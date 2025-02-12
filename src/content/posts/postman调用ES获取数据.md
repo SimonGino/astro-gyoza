@@ -5,8 +5,7 @@ date: 2024-01-01
 slug: postman-elasticsearch-api-guide
 featured: true
 draft: false
-categories:
-  - tools
+category: tools
 tags:
   - postman
   - API测试

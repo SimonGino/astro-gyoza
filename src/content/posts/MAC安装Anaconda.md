@@ -5,8 +5,7 @@ date: 2024-04-03
 slug: macos-anaconda-setup-guide
 featured: true
 draft: false
-categories:
-  - tools
+category: tools
 tags:
   - Anaconda
   - Python环境

@@ -5,8 +5,7 @@ date: 2024-07-31
 slug: linux-reinstall-ssh-key-setup
 featured: true
 draft: false
-categories:
-  - linux
+category: linux
 tags:
   - DD系统
   - SSH配置

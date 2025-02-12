@@ -5,8 +5,7 @@ date: 2024-07-31
 slug: mysql-emoji-storage-configuration
 featured: true
 draft: false
-categories:
-  - database
+category: database
 tags:
   - 字符集配置
   - utf8mb4

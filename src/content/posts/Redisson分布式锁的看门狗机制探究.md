@@ -5,8 +5,7 @@ date: 2024-11-28
 slug: redisson-distributed-lock-watchdog
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - Redisson
   - 分布式锁

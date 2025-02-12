@@ -5,8 +5,7 @@ date: 2024-04-15
 slug: fastjson-field-smart-match-solution
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - JSON序列化
   - FastJSON配置

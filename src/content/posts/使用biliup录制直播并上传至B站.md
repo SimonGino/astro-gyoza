@@ -5,9 +5,7 @@ date: 2024-10-24
 slug: biliup-live-recording-and-upload
 featured: true
 draft: false
-categories:
-  - docker
-  - tools
+category: docker
 description: 本文介绍如何使用biliup工具自动录制直播并上传至B站,包括Docker部署配置、录制设置、上传参数等完整教程
 ---
 

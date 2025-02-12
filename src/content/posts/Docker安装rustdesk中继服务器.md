@@ -5,8 +5,7 @@ date: 2024-07-12
 slug: docker-rustdesk-relay-server-setup
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - 远程桌面
   - 中继服务器

@@ -5,8 +5,7 @@ date: 2024-09-23
 slug: spring-transactional-annotation-best-practices
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - 事务管理
   - Spring注解

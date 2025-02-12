@@ -5,8 +5,7 @@ date: 2023-12-25
 slug: mysql-performance-sql-optimization
 featured: true
 draft: false
-categories:
-  - database
+category: database
 tags:
   - SQL优化
   - 索引设计

@@ -5,8 +5,7 @@ date: 2024-12-25
 slug: elasticsearch-query-examples-guide
 featured: false
 draft: false
-categories:
-  - database
+category: database
 tags:
   - ElasticSearch
   - 搜索引擎

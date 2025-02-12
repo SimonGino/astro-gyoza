@@ -5,8 +5,7 @@ date: 2024-12-18
 slug: homebrew-backup-restore-guide
 featured: false
 draft: false
-categories:
-  - MacOS
+category: MacOS
 tags:
   - Homebrew
   - 包管理

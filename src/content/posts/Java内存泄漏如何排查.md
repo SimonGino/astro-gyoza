@@ -5,8 +5,7 @@ date: 2023-12-05
 slug: java-memory-leak-troubleshooting-guide
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - JVM调优
   - 内存泄漏

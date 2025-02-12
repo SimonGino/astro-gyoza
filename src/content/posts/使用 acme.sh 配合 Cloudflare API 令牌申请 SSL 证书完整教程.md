@@ -5,10 +5,7 @@ date: 2024-10-28
 slug: acme-sh-cloudflare-ssl-automation
 featured: true
 draft: false
-categories:
-  - devops
-  - security
-  - automation
+category: devops
 tags:
   - SSL证书
   - acme.sh

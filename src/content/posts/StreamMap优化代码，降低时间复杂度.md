@@ -5,8 +5,7 @@ date: 2025-01-10
 slug: stream-map-optimization
 featured: false
 draft: false
-categories:
-  - java
+category: java
 tags:
   - Stream
   - Map

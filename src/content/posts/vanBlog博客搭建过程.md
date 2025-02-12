@@ -5,8 +5,7 @@ date: 2024-02-01
 slug: vanblog-deployment-https-setup
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - vanBlog
   - SSL证书

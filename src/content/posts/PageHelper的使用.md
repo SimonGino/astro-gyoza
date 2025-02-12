@@ -5,8 +5,7 @@ date: 2024-04-15
 slug: mybatis-pagehelper-guide
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - PageHelper
   - 分页查询

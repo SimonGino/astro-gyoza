@@ -5,8 +5,7 @@ date: 2023-12-05
 slug: spring-interceptor-servlet-filter-path-matching
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - 拦截器
   - 过滤器

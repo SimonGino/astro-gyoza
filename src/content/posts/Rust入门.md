@@ -5,8 +5,7 @@ date: 2024-07-28
 slug: rust-getting-started-guide
 featured: true
 draft: false
-categories:
-  - rust
+category: rust
 tags:
   - cargo
   - 交叉编译

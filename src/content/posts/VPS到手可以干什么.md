@@ -5,9 +5,7 @@ date: 2024-09-20
 slug: vps-initial-setup-guide
 featured: true
 draft: false
-categories:
-  - linux
-  - docker
+category: linux
 tags:
   - sing-box
   - nginx

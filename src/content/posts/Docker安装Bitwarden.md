@@ -5,8 +5,7 @@ date: 2024-08-15
 slug: docker-vaultwarden-setup-guide
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - Vaultwarden
   - 密码管理

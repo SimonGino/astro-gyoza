@@ -5,8 +5,7 @@ date: 2023-12-06
 slug: mysql-only-full-group-by-configuration
 featured: true
 draft: false
-categories:
-  - database
+category: database
 tags:
   - GROUP BY
   - SQL优化

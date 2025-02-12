@@ -5,8 +5,7 @@ date: 2024-08-26
 slug: sqlite-cli-guide-on-linux
 featured: true
 draft: false
-categories:
-  - database
+category: database
 tags:
   - SQLite命令
   - 数据库查询

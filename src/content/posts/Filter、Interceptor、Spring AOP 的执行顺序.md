@@ -5,8 +5,7 @@ date: 2025-01-03
 slug: filter-interceptor-spring-aop-execution-order
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - Filter
   - Interceptor

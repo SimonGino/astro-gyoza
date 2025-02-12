@@ -5,8 +5,7 @@ date: 2024-09-20
 slug: java-completablefuture-guide
 featured: true
 draft: false
-categories:
-  - java
+category: java
 tags:
   - 异步编程
   - 并发编程

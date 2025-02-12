@@ -5,8 +5,7 @@ date: 2024-04-18
 slug: github-fork-pull-request-workflow
 featured: true
 draft: false
-categories:
-  - git
+category: git
 tags:
   - Fork工作流
   - Pull Request

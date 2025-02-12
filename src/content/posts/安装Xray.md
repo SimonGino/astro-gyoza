@@ -5,8 +5,7 @@ date: 2024-12-12
 slug: xray-installation-guide
 featured: false
 draft: false
-categories:
-  - linux
+category: linux
 tags:
   - Xray
   - 网络配置

@@ -5,8 +5,7 @@ date: 2024-07-01
 slug: docker-container-configuration-guide
 featured: true
 draft: false
-categories:
-  - docker
+category: docker
 tags:
   - MinIO
   - MariaDB

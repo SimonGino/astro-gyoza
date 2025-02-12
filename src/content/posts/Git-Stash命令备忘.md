@@ -5,8 +5,7 @@ date: 2023-12-05
 slug: git-stash-complete-guide
 featured: true
 draft: false
-categories:
-  - git
+category: git
 tags:
   - git stash
   - 版本控制

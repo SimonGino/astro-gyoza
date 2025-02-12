@@ -5,8 +5,7 @@ date: 2025-01-02
 slug: lobechat-deploy
 featured: true
 draft: false
-categories:
-  - linux
+category: linux
 tags:
   - LobeChat
   - 部署

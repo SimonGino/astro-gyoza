@@ -5,8 +5,7 @@ date: 2025-02-12
 slug: git-multi-user-config
 featured: false
 draft: false
-categories:
-  - git
+category: git
 tags:
   - Xray
   - 网络配置

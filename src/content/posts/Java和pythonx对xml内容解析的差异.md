@@ -5,9 +5,7 @@ date: 2023-12-05
 slug: java-python-xml-namespace-parsing
 featured: true
 draft: false
-categories:
-  - java
-  - python
+category: java
 tags:
   - XML解析
   - 命名空间处理
