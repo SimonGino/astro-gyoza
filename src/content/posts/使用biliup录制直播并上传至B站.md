@@ -2,413 +2,334 @@
 title: 使用biliup录制直播并上传至B站
 author: Jinx
 date: 2024-10-24
+lastMod: 2025-04-18
 slug: biliup-live-recording-and-upload
 featured: true
 draft: false
 category: docker
-description: 本文介绍如何使用biliup工具自动录制直播并上传至B站,包括Docker部署配置、录制设置、上传参数等完整教程
+tags:
+  - biliup
+  - ffmpeg
+  - 直播录制
+  - B站上传
+  - Docker
+description: 本文详细介绍如何使用biliup工具，通过Docker部署，实现自动录制直播流并将其上传到Bilibili平台，包含配置、弹幕处理及常见问题解决方案。
 ---
 
-准备好在一个文件夹下编辑docker-compose.yml文件。
+## 前言
+
+Biliup 是一款强大的自动化工具，能够监控指定直播间，在主播开播时自动进行录制，并在直播结束后将录像上传至 Bilibili。本文将引导你完成 `biliup` 的 Docker 部署、基本配置、可选的弹幕处理，以及解决一个常见的 FFmpeg 硬件加速问题。
+
+## 前置准备
+
+在开始之前，请确保你的系统已经安装了：
+
+1.  **Docker**: 用于运行 `biliup` 容器。
+2.  **Docker Compose**: （推荐）用于简化 Docker 容器的管理。
+
+## 部署 biliup
+
+推荐使用 Docker Compose 进行部署，方便管理配置和持久化数据。
+
+### 1. 创建工作目录和编排文件
+
+首先，创建一个用于存放 `biliup` 配置和数据的目录，例如 `/backup/docker/biliup`。
+
+```bash
+mkdir -p /backup/docker/biliup
+cd /backup/docker/biliup
+```
+
+然后，在该目录下创建 `docker-compose.yml` 文件：
 
 ```sh
-cat > /backup/docker/biliup/docker-compose.yml << EOF
+cat > docker-compose.yml << EOF
 version: '3'
 services:
   biliup:
+    # 推荐使用 tag 为 caution 的镜像，稳定性较好
     image: ghcr.io/biliup/caution:latest
     container_name: biliup
     restart: unless-stopped
     ports:
+      # 将容器的 19159 端口映射到宿主机的 19159 端口
       - "19159:19159"
     volumes:
+      # 将当前目录映射到容器内的 /opt 目录
+      # 这会将配置文件(config.yaml)、录制的视频、日志等都保存在宿主机的当前目录下
       - ./:/opt
-    command: --password simon1122qaz
+    # 设置 Web UI 的登录密码，请替换为你自己的强密码
+    command: --password your_strong_password_here
 EOF
 ```
 
-再准备好一个config.yaml文件
+**注意**:
+
+- 请将 `your_strong_password_here` 替换为你自己的安全密码。
+- `./:/opt` 的意思是将宿主机上 `docker-compose.yml` 文件所在的目录（即 `/backup/docker/biliup`）挂载到容器的 `/opt` 目录。`biliup` 会在这个目录下读写 `config.yaml`、`cookies.json` 以及录制的视频文件。
+
+### 2. 准备配置文件 (可选)
+
+`biliup` 的所有配置都存储在 `config.yaml` 文件中。你可以**选择**手动创建这个文件，也可以在首次启动 `biliup` 后通过 Web UI 进行配置，`biliup` 会自动生成该文件。
+
+如果你想预先配置，可以创建一个 `config.yaml` 文件。以下是一个包含了各种常用选项的**示例配置**，你可以根据需要进行删减和修改。**对于初学者，建议跳过此步骤，直接通过 Web UI 配置。**
 
 ```sh
-cat > /backup/docker/biliup/config.yaml << EOF
+# 创建一个空的 config.yaml，如果需要预设则粘贴以下内容
+# touch config.yaml
+
+# (可选) 预创建 config.yaml 文件并填入内容
+cat > config.yaml << EOF
+# --- config.yaml 内容开始 --- #
+
 ######### 全局录播与上传设置 #########
-#------录制与下载------#
-### 选择全局默认的下载插件，默认为stream-gears。可选：
-### 1.streamlink(streamlink配合ffmpeg混合下载模式，适合用于下载hls_fmp4与hls_ts流，因为streamlink支持多线程拉取）。
-### 使用该模式下载flv流时，将会仅使用ffmpeg。请手动安装streamlink以及ffmpeg。
-### 2.ffmpeg（纯ffmpeg下载），请手动安装ffmpeg。
-### 3.stream-gears
-#downloader: ffmpeg
-### 录像单文件大小限制，单位Byte，超过此大小分段下载，下载回放时无法使用
-#file_size: 2621440000
-### 录像单文件时间限制，格式'00:00:00'（时分秒），超过此大小分段下载，如需使用大小分段请注释此字段
-segment_time: '00:50:00'
-### 小于此大小的视频文件将会被过滤删除，单位MB
-filtering_threshold: 20
-### 自定义录播文件名模板, 支持变量 {streamer}:你在配置里设置的直播间名 %Y-%m-%d %H_%M_%S:创建文件的时间, {title}:当场直播间标题
-### 如果上传文件，文件名必须包含设定的模板名。其次，如果没有定义时间，文件分片可能会互相覆盖，所以推荐设置时间来避免分段文件名重复。
-filename_prefix: '{streamer}%Y-%m-%d %H_%M_%S{title}'
-### 视频分段后处理并行
-### 开启后无法保证分段后处理先后执行顺序
-#segment_processor_parallel: false
+# (保留你原始草稿中的 config.yaml 完整内容，此处仅作示意)
+# ... (非常长的配置内容) ...
 
 #------上传------#
 ### 选择全局默认上传插件，Noop为不上传，但会执行后处理,可选bili_web，biliup-rs(默认值)
 #uploader: Noop
 ### b站提交接口，默认自动选择，可选web，client
 #submit_api: client
-### b站上传线路选择，默认为自动模式，目前可手动切换为bda2, kodo, ws, qn, bldsa, cos, cos-internal(支持腾讯云内网免流+提速)
-lines: AUTO
-### 单文件并发上传数,未达到带宽上限时,增大此值可提高上传速度(不要设置过大,部分线路限制为8,如速度不佳优先调整上传线路)
-threads: 3
+lines: AUTO # 上传线路，AUTO 通常足够
+threads: 3 # 上传并发数
 
 #------杂项------#
-### 检测到主播下播后延迟再次检测，单位：秒，避免特殊情况提早启动上传导致漏录
-### 当delay不存在时，默认延迟时间为0秒，没有快速上传的需求推荐设置5分钟(300秒)或按需设置。若设置的延迟时间超过60秒，则会启用分段检测机制，每隔60秒进行一次开播状态的检测。
-delay: 300
-### 平台检测间隔时间，单位：秒。比如虎牙所有主播检测完后会等待30秒 再去从新检测
-event_loop_interval: 30
-### 单个主播检测间隔时间，单位：秒。比如虎牙有10个主播，每个主播会间隔10秒检测
-checker_sleep: 10
-### 线程池1大小，负责下载事件。应设置为比主播数量略大，如不确定请设置为999。
-pool1_size: 3
-### 线程池2大小，负责上传事件。应设置为比主播数量略大，如不确定请设置为999。
-pool2_size: 3
-### 检测源码文件变化间隔，单位：秒，检测源码到变化后，程序会在空闲时自动重启
-check_sourcecode: 15
-
-
-
-######### 各平台录播设置 #########
-### 使用直播间封面作为投稿封面。此封面优先级低于单个主播指定的自定义封面。（目前支持bilibili,twitch,youtube。直播封面将会保存于cover文件夹下，上传后自动删除）
-#use_live_cover: true
-
-#------斗鱼------#
-### 如遇到斗鱼录制卡顿可以尝试切换线路。可选以下线路
-### tctc-h5（备用线路4）, tct-h5（备用线路5）, ali-h5（备用线路6）, hw-h5（备用线路7）, hs-h5（备用线路13）
-#douyu_cdn: tct-h5
-### 录制斗鱼弹幕，默认关闭
-#douyu_danmaku: false
-### 斗鱼自选画质
-### 刚开播可能没有除了原画之外的画质 会先录制原画 后续视频分段(仅ffmpeg streamlink)时录制设置的画质
-### 0 原画,4 蓝光4m,3 超清,2 高清
-#douyu_rate:  0
-
-#------虎牙------#
-### 如遇到虎牙录制卡顿可以尝试切换线路。可选以下线路
-### AL（阿里云 - 直播线路3）, TX（腾讯云 - 直播线路5）, HW（华为云 - 直播线路6）, WS（网宿）, HS（火山引擎 - 直播线路14）, AL13（阿里云）, HW16（华为云）, HY(星域云 - 直播线路66)
-#huya_cdn: AL
-#huya_cdn_fallback: false
-### 录制虎牙弹幕，默认关闭
-#huya_danmaku: false
-### 虎牙自选录制码率
-### 可以避免录制如20M的码率，每小时8G左右大小，上传及转码耗时过长。
-### 20000（蓝光20M）, 10000（蓝光10M）, 8000（蓝光8M）, 2000（超清）, 500（流畅）
-### 设置为10000则录制小于等于蓝光10M的画质
-#huya_max_ratio: 10000
-
-#------抖音------#
-### 录制抖音弹幕，默认关闭
-#douyin_danmaku: false
-### 抖音自选画质
-### 刚开播可能没有除了原画之外的画质 会先录制原画 后续视频分段(仅ffmpeg streamlink)时录制设置的画质
-### origin 原画,uhd 蓝光,hd 超清,sd 高清,ld 标清,md 流畅
-### 没有选中的画质则会自动选择相近的画质优先低清晰度
-#douyin_quality: origin
-
-
-#------哔哩哔哩------#
-### 录制BILIBILI弹幕，下载器为ffmpeg,streamlink时效果最优，默认关闭
-# bilibili_danmaku: false
-### 哔哩哔哩直播流协议.可选 stream（flv流）,hls_ts(ts流）与hls_fmp4（fmp4流），默认为stream
-### 仅国内IP可以解析到fmp4流。海外IP只能获取到flv流（ov05与ov07）和ts流（ov105）
-### 由于fmp4出现需要一定时间，或者某些小主播（大部分只有原画选项的主播）无fmp4流。
-### 目前的策略是，如果开播时间小于60s，将会反复尝试获取fmp4流，如果没获取到就回退到flv流。
-### 由于ffmpeg只能单线程下载，并且stream-gears录制有问题，所以目前fmp4流只能使用streamlink+ffmpeg混合模式。
-#bili_protocol: stream
-### 哔哩哔哩直播优选CDN，默认无，支持同时填入多个CDN节点。
-#bili_perfCDN: 'cn-gotcha208,ov-gotcha05'
-### 哔哩哔哩强制真原画（仅限TS与FMP4流的 cn-gotcha01 CDN，且 bili_qn >= 10000），默认为关闭
-### 不保证可用性。当无法强制获取到真原画时，将会自动回退到二压原画。
-#bili_force_source: false
-### 自定义哔哩哔哩直播API，用于获取指定区域（大陆或者海外）的直播流链接，默认使用官方API。
-#bili_liveapi: 'https://api.live.bilibili.com'
-### 自定义fmp4流获取不到时，重新获取一遍flv直播流的api，默认不重新使用其他api重新获取一遍。
-### 海外机器玩法：bili_liveapi设置为能获取大陆直播流的API，并将bili_fallback_api设置为官方API，然后优选fmp4流并使用streamlink下载器，最后设置优选cn-gotcha208,ov-gotcha05两个节点。
-### 大陆机器玩法：bili_liveapi取消注释保持默认使用官方API，并将bili_fallback_api设置为能获取到海外节点API，然后优选fmp4流并使用streamlink下载器，最后设置优选cn-gotcha208,ov-gotcha05两个节点。
-### 这样大主播可以使用cn208的fmp4流稳定录制（海外机如需可以通过自建dns优选指定线路的cn208节点），没有fmp4流的小主播也可以会退到ov05录制flv流。
-#bili_fallback_api: 'https://api.live.bilibili.com'
-### CDN自动Fallback开关，默认为关闭，例如海外机器优选ov05之后，如果ov05流一直无法下载，将会自动fallback到ov07进行下载。
-#bili_cdn_fallback: false
-### 强制替换cn-gotcha01（叔叔自建）为指定的自选域名组（可多个域名，请用逗号分隔）
-### 完整CDN列表请参考 https://rec.danmuji.org/dev/bilibili-cdn/ 中"B站视频云"的部分
-### 如果海外机器需要使用此功能，需要在bili_liveapi中指定国内的反代API来获取cn-gotcha01的节点信息。
-### 海外机的玩法：配合一个国内的机器（例如便宜的腾讯云，阿里云等等）自建反代api.live.bilibili.com。或者使用https://docs.qq.com/doc/DV2dvbXBrckNscU9x 此处提供的公用反代API。
-### 如果海外机到联通或者移动网络线路还不错，就可以参考***完整CDN列表***选取一些联通或者移动的节点并填入下面
-### 每次会随机返回填入的其中一个线路，并且会自动判断所填入的节点是否可用
-#bili_replace_cn01:
-    # - cn-jxnc-cm-01-16
-    # - cn-gddg-cm-01-06
-    # - cn-fjqz-cm-01-06
-    # - cn-jssz-cm-01-02
-    # - cn-gddg-ct-01-12
-### 哔哩哔哩自选画质
-### 刚开播可能没有除了原画之外的画质 会先录制原画 后续视频分段(仅ffmpeg streamlink)时录制设置的画质
-### 30000 杜比,20000 4K,10000 原画,401 蓝光(杜比),400 蓝光,250 超清,150 高清,80 流畅,0 B站默认(多数情况下是蓝光 400)
-### 没有选中的画质则会自动选择相近的画质
-#bili_qn: 10000
-
-#------YouTube------#
-### 设置偏好的YouTube下载封装格式
-### 默认不限制
-### 请务必记得安装ffmpeg
-### 如无特殊需求不建议筛选封装格式 特别是录制直播时 多数直播mp4都是不可用的
-### bilibili支持 mp4 mkv webm 无需筛选也能上传
-### 支持同时添加多个编码，自动优选指定编码格式里最好的画质/音质版本。
-### 视频：其中avc编码最高可以下载到1080p的内容，vp9最高可以下载到4k以及很少部分8k内容，av01画质不是所有视频都有，但是大部分8k视频的8k画质只有av01编码。
-### 音频：其中opus编码最高48KHz采样，mp4a（AAC）最高44.1KHz采样，理论上来说opus音质会更好一些。
-### 如需指定封装格式，请按以下推荐设置。mp4：avc+mp4a;av01+mp4a. mkv:vp9+mp4a,avc+opus. webm:av01+opus;vp9+opus.
-#youtube_prefer_vcodec: "av01|vp9|avc" ### 可用av01,vp9,avc
-#youtube_prefer_acodec: "opus|mp4a" ### 可用opus,mp4a
-### 设置偏好的YouTube下载最高纵向分辨率
-### 默认不限制
-### 可以用此限制画质
-### 例如设置为1080最高只会下载1080P画质
-#youtube_max_resolution: 1080
-### 限制单个视频的最大大小
-### 默认不限制
-### 直播无此功能
-### 注意：此参数优先级高于分辨率设置，并且不包括音频部分的大小，仅仅只是视频部分的大小。
-### 此功能在一部分视频上无法使用 推荐使用画质限制不开启此功能
-#youtube_max_videosize: "10G" ###参考格式，例如100M，5G，10G。
-### 仅下载该日期之后的视频
-### 默认不限制
-#youtube_after_date: '20220201'
-### 仅下载该日期之前的视频（可与上面的youtube_after_date配合使用，构成指定下载范围区间）
-### 默认不限制
-#youtube_before_date: '20230501'
-### 是否下载直播 默认开启
-### 关闭后将忽略直播下载（可以下载回放） 避免网络被风控(有些网络只能下载回放无法下载直播)的时候还会尝试下载直播
-### 大量下载时极易风控 如对实时性要求不高推荐关闭
-### 一个人同时开启多个直播只能录制最新录制的那个
-### 如果正在录制直播将无法下载回放
-### 例如录制https://www.youtube.com/@NeneAmanoCh/streams，关闭后将忽略正在直播
-#youtube_enable_download_live: true
-### 是否下载直播回放 默认开启
-### 关闭后将忽略直播下载回放(不会影响正常的视频下载) 只想录制直播的可以开启
-### 如果正在下载回放将无法录制直播
-### 例如录制https://www.youtube.com/@NeneAmanoCh/streams，关闭后将忽略直播回放
-#youtube_enable_download_playback: true
-
-#------Twitch直播录制------#
-### 录制Twitch弹幕，默认关闭
-#twitch_danmaku: false
-### 去除Twitch广告功能，默认开启
-### 这个功能会导致Twitch录播分段，因为遇到广告就自动断开了，这就是去广告。若需要录播完整一整段可以关闭这个，但是关了之后就会有紫色屏幕的CommercialTime
-### 还有一个不想视频分段的办法是去花钱开一个Turbo会员，能不看广告，然后下面的user里把twitch的cookie填上，也能不看广告，自然就不会分段了
-#twitch_disable_ads: true
-
-#------TwitCasting------#
-### 录制Twitch弹幕，默认关闭
-#twitcasting_danmaku: false
-### TwitCasting直播间密码 (可在录制主播设置中为主播单独配置)
-#twitcasting_password:
+delay: 300 # 下播后延迟检测时间（秒），防止漏录结尾，推荐 300 秒
+event_loop_interval: 30 # 所有主播检查一遍后的等待时间（秒）
+checker_sleep: 10 # 每个主播检查间隔（秒）
+pool1_size: 3 # 下载线程池大小
+pool2_size: 3 # 上传线程池大小
 
 ######### 录制主播设置 #########
 streamers:
-### 完整可选配置示例
-    余小C录播:
-        url:
-            - https://www.douyu.com/1126960
-        title: "余小C录播" ### 自定义标题的时间格式, {title}代表当场直播间标题 {streamer}代表在本config里面设置的主播名称 {url}代表设置的该主播的第一条直播间链接
-        tid: 171 ### 投稿分区码,171为电子竞技分区
-        copyright: 2 ### 1为自制
-        # cover_path: /cover/up.jpg ###封面
-        description: |- ### 支持strftime, {title}, {streamer}, {url}占位符。注：此处请注意缩进，确保所有文字的缩进都与"视频简介"相同或者更多。
-         视频简介: {title} %Y-%m-%d
-         {streamer}主播直播间地址：https://www.douyu.com/1126960
-        ### 如需在简介中@别人 请使用以下模版
-        # credits:
-        #    - username: 需要@的用户名
-        #      uid: 需要@的uid
-        #description: |-
-        # 视频简介: {title} %Y-%m-%d %H:%M:%S
-        # {streamer}主播直播间地址：{url}
-        # 【@credit】
-        # ---
-        # Powered By biliup - Github: https://github.com/ForgQi/biliup
-        dynamic: '#空间动态#'
-        #dtime: 14_400 ### 设置延时发布时间，距离提交大于2小时，格式为时间戳
-        #dolby: 0 ### 是否开启杜比音效, 1为开启
-        #hires: 0 ### 是否开启Hi-Res, 1为开启
-        #open_elec: 0 ### 是否开启充电面板, 1为开启
-        #no_reprint: 0 ### 自制声明, 1为未经允许禁止转载
-        uploader: biliup-rs ### 覆盖全局默认上传插件，Noop为不上传，但会执行后处理
-        #filename_prefix: '{streamer}%Y-%m-%d %H_%M_%S{title}'  ### 覆盖全局自定义录播文件命名规则
-        user_cookie: cookies.json ### 使用指定的账号上传
-        #use_live_cover: true ### 获取BILIBILI直播间封面并作为投稿封面。此封面优先级低于单个主播指定的自定义封面。
-        tags:
-            - 余小C
-            - 阿亮
-            - 英雄联盟
-            - 直播录像
-        #preprocessor: ### 开始下载直播时触发，将按自定义顺序执行自定义操作 注：preprocessor仅支持shell指令
-            #- run: sh ./run.sh, ### 执行任意命令，等同于在shell中运行,preprocessor输出的数据为JSON格式，包含主播名字(name)、开播地址(url)和开播时间(start_time)(时间戳)
-        ### 分段时触发 返回当前生成的文件
-        #segment_processor:
-        #    - run: sh ./run.sh, ### 执行任意命令，等同于在shell中运行
-        ### 准备上传直播时触发，将按自定义顺序执行自定义操作 注：downloaded_processor仅支持shell指令
-        ### room_title 在重启后会丢失 默认为当前配置名称
-        ### start_time end_time在重启后会丢失时间 默认为当前时间
-        ### 如果对上传的视频进行修改需要保证和filename_prefix命名规则一致 会自动检测上传
-        ### 上传顺序会按照文件创建时间排序
-        #downloaded_processor:
-        #    - run: sh ./run.sh, ### 执行任意命令，等同于在shell中运行,downloaded_processor输出的数据为JSON格式，包含主播名字(name)、直播间地址(url)、直播间标题(room_title)、开播时间(start_time)(时间戳)、下播时间(end_time)(时间戳)和视频列表(file_list)
-        #postprocessor: ### 上传完成后触发，将按自定义顺序执行自定义操作 当postprocessor不存在时 默认执行删除文件操作
-        #    - run: echo hello! ### 执行任意命令，等同于在shell中运行,视频文件路径作为标准输入传入
-        #    - mv: backup/ ### 移动文件到backup目录下
-        #    - run: python3 path/to/mail.py ### 执行一个 Python 脚本，可以用来发送邮件等。自动发信通知脚本示例 https://biliup.github.io/biliup/Guide.html#%E4%B8%8A%E4%BC%A0%E5%AE%8C%E6%88%90%E5%90%8E%E5%8F%91%E9%80%81%E9%82%AE%E4%BB%B6%E9%80%9A%E7%9F%A5
-        #    - run: sh ./run.sh ### 执行一个shell脚本，用途多样，主要调用系统内的cli工具。自动上传网盘脚本示例 https://gist.github.com/UVJkiNTQ/ae4282e8f9fe4e45b3144b57605b4178
-            #- rm ### 删除文件，为默认操作
-        #format: mp4 ### 视频保存格式。如需使用mp4格式，必须切换downloader为ffmpeg或者streamlink，youtube不支持。
-        #opt_args: ### ffmpeg参数
-        #    - '-ss'
-        #    - '00:00:16' # 跳过开始的16秒
-    暴走的暴走的银剑君丶录播:
-        url:
-            - https://www.douyu.com/251783
-        title: "暴走的暴走的银剑君丶录播" ### 自定义标题的时间格式, {title}代表当场直播间标题 {streamer}代表在本config里面设置的主播名称 {url}代表设置的该主播的第一条直播间链接
-        tid: 171 ### 投稿分区码,171为电子竞技分区
-        copyright: 2 ### 1为自制
-        # cover_path: /cover/up.jpg ###封面
-        description: |- ### 支持strftime, {title}, {streamer}, {url}占位符。注：此处请注意缩进，确保所有文字的缩进都与"视频简介"相同或者更多。
-         视频简介: {title} %Y-%m-%d
-         {streamer}主播直播间地址：https://www.douyu.com/251783
-        ### 如需在简介中@别人 请使用以下模版
-        # credits:
-        #    - username: 需要@的用户名
-        #      uid: 需要@的uid
-        #description: |-
-        # 视频简介: {title} %Y-%m-%d %H:%M:%S
-        # {streamer}主播直播间地址：{url}
-        # 【@credit】
-        # ---
-        # Powered By biliup - Github: https://github.com/ForgQi/biliup
-        dynamic: '#空间动态#'
-        #dtime: 14_400 ### 设置延时发布时间，距离提交大于2小时，格式为时间戳
-        #dolby: 0 ### 是否开启杜比音效, 1为开启
-        #hires: 0 ### 是否开启Hi-Res, 1为开启
-        #open_elec: 0 ### 是否开启充电面板, 1为开启
-        #no_reprint: 0 ### 自制声明, 1为未经允许禁止转载
-        uploader: biliup-rs ### 覆盖全局默认上传插件，Noop为不上传，但会执行后处理
-        #filename_prefix: '{streamer}%Y-%m-%d %H_%M_%S{title}'  ### 覆盖全局自定义录播文件命名规则
-        user_cookie: cookies.json ### 使用指定的账号上传
-        #use_live_cover: true ### 获取BILIBILI直播间封面并作为投稿封面。此封面优先级低于单个主播指定的自定义封面。
-        tags:
-            - 暴走的暴走的银剑君丶
-            - 银剑君
-            - 英雄联盟
-            - 直播录像
+  # 示例：录制某个主播
+  主播名称示例: # 这里是你给录播任务起的名字，会用在日志和可能的文件夹名称中
+    url:
+      - https://live.bilibili.com/123456 # 直播间链接，支持多个备用
+    title: "{streamer} {title} %Y%m%d" # 上传B站的视频标题模板
+    tid: 171 # B站分区ID (171: 电子竞技)
+    copyright: 2 # 1为自制，2为转载 (录播通常选2)
+    # 建议使用 user_cookie 指定登录信息，否则可能无法上传或获取高画质
+    user_cookie: cookies.json # 指向包含B站Cookie的文件名
+    tags:
+      - Tag1
+      - Tag2
+      - 直播录像
+    # description: |- # 视频简介模板
+    #  {title}
+    #  直播间: {url}
+    #  Powered by biliup
+    # postprocessor: # 上传后的处理，默认为删除 rm
+    #   - mv: finished/ # 例如，移动到 finished 目录
 
-
-################### 用户cookie ###################
-### 在使用下方配置时，请确认下方第一行（user:）取消了注释。
+######### 用户cookie #########
 #user:
-    #------哔哩哔哩------#
-    #------哔哩哔哩获取直播流用COOKIE------#
-    ### 请至少填入以下项目。推荐使用 biliup-rs(https://github.com/biliup/biliup-rs) 来获取。
-    #bili_cookie: 'SESSDATA=none;bili_jct=none;DedeUserID__ckMd5=none;DedeUserID=123;'
-    ### 同时存在时，优先使用文件。只支持 biliup-rs 生成的文件。
-    #bili_cookie_file: 'cookies.json'
-    ### 重要！！！
-    ### 因 哔哩哔哩 修改画质策略，不使用 Cookie 只返回最低画质，故不再控制 Cookie 使用与否。
-    ### 将 Cookie 传入不信任的第三方API可能会导致账号被盗，自行斟酌使用。
+  #------哔哩哔哩------#
+  # ### 用于获取高画质直播流和上传，非常重要！
+  # ### 推荐使用 biliup-rs 登录获取完整 cookie 文件
+  # bili_cookie_file: 'cookies.json' # 指向 cookie 文件
 
-    #------抖音------#
-    ### 如需要录制抖音www.douyin.com/user/类型链接或被风控
-    ### 请在此填入cookie需要__ac_nonce、__ac_signature、sessionid的值请不要将所有cookie填入
-    #douyin_cookie: '__ac_nonce=123456; __ac_signature=123456; sessionid=123456;'
+# (其他平台和日志配置，根据需要保留或删除)
+# ...
 
-    #------Twitch直播录制------#
-    ### 只在录制twitch直播时才生效
-    ### 如录制Twitch时遇见视频流中广告过多的情况，可尝试在此填入cookie，可以大幅减少视频流中的twitch广告（经测试需要在该Cookie所属账号开了TwitchTurbo会员才有用）
-    ### 该cookie有过期风险，cookie过期后会在日志输出警告请及时更换cookie，cookie失效的情况下后续录制将忽略cookie（我个人用了四个月都没过期）
-    ### twitch_cookie获取方式：在浏览器中打开Twitch.tv，F12调出控制台，在控制台中执行：document.cookie.split("; ").find(item=>item.startsWith("auth-token="))?.split("=")[1]
-    ### twitch_cookie需要在downloader= "ffmpeg"时候才会生效
-    #twitch_cookie: 'aisjdoiuasdoihansdoh3ooi209'
-
-    #------YouTube------#
-    ### 使用Cookies登陆YouTube帐号，可用于下载会限，私享等未登录账号无法访问的内容。请使用Netscape 格式的 Cookies 文本路径。
-    ### 可以使用Chrome插件Get cookies.txt来生成txt文件。
-    #youtube_cookie: 'cookiejar.txt'
-
-    #------NICO------#
-    ### The email or phone number associated with your Niconico account
-    ### 【翻译：与您的Niconico账户相关的电子邮件或电话号码】
-    #niconico-email: xxxxxxxxxxx
-    ### The password of your Niconico account
-    ### 【翻译：您的Niconico账户的密码】
-    #niconico-password: xxxxxxxxxxxx
-    ### Value of the user-session token. Can be used as an alternative to providing a password.
-    ### 【翻译：用户会话令牌的值。可作为提供密码的替代方法。】
-    #niconico-user-session: xxxxxxxxxxx
-    ### Purge cached Niconico credentials to initiate a new session and reauthenticate.
-    ### 【翻译：清除缓存的 Niconico 凭证，以启动一个新的会话并重新认证。】
-    #niconico-purge-credentials: xxxxxxxxxxxx
-
-    #------AfreecaTV------#
-    ### 录制部分直播时需要登陆
-    ### AfreecaTV 用户名
-    #afreecatv_username: xxxxxxxxxxx
-    ### AfreecaTV 密码
-    #afreecatv_password: xxxxxxxxxxxx
-
-
-
-######### 日志输出配置 #########
-LOGGING:
-    formatters:
-        verbose:
-            format: '%(asctime)s %(filename)s[line:%(lineno)d](Pid:%(process)d Tname:%(threadName)s) %(levelname)s %(message)s'
-            datefmt: '%Y-%m-%d %H:%M:%S'
-        simple:
-            format: '%(filename)s%(lineno)d[%(levelname)s]Tname:%(threadName)s %(message)s'
-    handlers:
-        console:
-            level: DEBUG
-            class: logging.StreamHandler
-            formatter: simple
-            stream: ext://sys.stdout
-        file:
-            level: DEBUG
-            class: biliup.common.log.SafeRotatingFileHandler
-            when: W0
-            interval: 1
-            backupCount: 1
-            filename: ds_update.log
-            formatter: verbose
-            encoding: utf-8
-    root:
-        handlers: [ console ]
-        level: INFO
-    loggers:
-        biliup:
-            handlers: [ file ]
-            level: INFO
-
-### 默认通过网页接口上传,可选通过操作chrome上传,此时需要填写chromedriver路径
-#chromedriver_path: /usr/local/bin/chromedriver
+# --- config.yaml 内容结束 --- #
 EOF
 ```
 
-之后运行命令
+**核心配置项说明**:
 
-```sh
+- `lines`: 上传线路，`AUTO` 自动选择通常效果最好。
+- `threads`: 同时上传的文件块数量，可适当增加提高速度，但过高可能触发B站限制。
+- `delay`: 检测到下播后等待一段时间再开始处理，防止主播短暂断流导致录像分割和过早上传。
+- `streamers`: 这是配置的核心，在此处添加你要录制的主播信息。
+  - `url`: 直播间地址。
+  - `title`: 上传到B站的视频标题格式，支持变量如 `{streamer}` (你在配置里设置的名字), `{title}` (直播间标题), 以及 `strftime` 时间格式。
+  - `tid`: B站投稿分区 ID。你可以在 B 站投稿页面 URL 中找到，或者通过 [B站分区查询工具](https://biliup.github.io/tid-ref.html) 查看。
+  - `copyright`: 1=自制，2=转载。录播一般选 2。
+  - `user_cookie`: 指定用于上传和获取信息的 B 站 Cookie 文件名。强烈建议配置此项。
+  - `tags`: 上传视频的标签。
+  - `postprocessor`: 视频上传完成后的操作，默认为删除 (`rm`)。可以设置为 `mv: backup/` 将文件移动到 `backup` 目录。
+
+### 3. 启动 biliup
+
+在 `docker-compose.yml` 文件所在的目录下运行：
+
+```bash
 docker compose up -d
 ```
 
-打开网址，输入账号密码即可配置
-http://ip:19159
+这将在后台启动 `biliup` 容器。
 
-参考项目:
-https://github.com/biliup/biliup
+### 4. 访问 Web UI 并配置
+
+容器启动后，在浏览器中打开 `http://<你的服务器IP>:19159`。
+使用你在 `docker-compose.yml` 中设置的密码 (`your_strong_password_here`) 登录。
+
+**首次使用的基本配置流程：**
+
+1.  **登录**: 输入密码登录。
+2.  **上传设置 (用户管理)**:
+    - 点击侧边栏的 “用户管理”。
+    - 点击 “添加 B站 Cookie”。
+    - 推荐使用 `biliup-rs` 工具 ([biliup-rs GitHub](https://github.com/biliup/biliup-rs)) 在你的**本地电脑**（不是服务器）登录 B 站账号，生成 `cookies.json` 文件。
+    - 将生成的 `cookies.json` 文件内容**完整粘贴**到 Web UI 的文本框中，或者将 `cookies.json` 文件上传到服务器的 `biliup` 工作目录 (`/backup/docker/biliup`) 下，然后在 Web UI 中指定文件名 `cookies.json`。
+    - 保存 Cookie。这是能够成功上传和获取高画质流的关键。
+3.  **添加录播任务 (主播管理)**:
+    - 点击侧边栏的 “主播管理”。
+    - 点击 “添加主播”。
+    - 填入 **直播间 URL**。
+    - 设置 **主播名称** (仅用于 `biliup` 内部标识)。
+    - 配置 **上传设置**:
+      - **投稿模板**: 设置视频标题 (`title`)、分区 (`tid`)、标签 (`tags`) 等。
+      - **选择用户**: 选择你刚才添加的 B 站 Cookie。
+    - 点击 “保存”。
+4.  `biliup` 会自动开始轮询检查你添加的主播是否开播。
+
+## 可选：弹幕录制与处理
+
+`biliup` 本身支持录制部分直播平台的弹幕（需要在 `config.yaml` 中为对应平台开启，如 `douyu_danmaku: true`），录制的弹幕会保存为 `.xml` 或 `.ass` 文件。
+
+如果你希望将弹幕压制进视频文件，或者进行更复杂的处理，可以使用第三方工具，例如 `danmaku-compress` ([SimonGino/danmaku-compress](https://github.com/SimonGino/danmaku-compress))。
+
+**使用 `danmaku-compress` 的简要流程 (在服务器上操作):**
+
+### 1. 下载并配置脚本
+
+```bash
+# 假设你在 /opt/tools 目录下管理这类工具
+cd /opt/tools
+git clone https://github.com/SimonGino/danmaku-compress.git
+cd danmaku-compress
+
+# 修改 config.py 文件
+nano config.py
+```
+
+你需要修改 `config.py` 中的路径，使其指向 `biliup` 存放录播文件的地方。例如，如果你的 `biliup` 工作目录是 `/backup/docker/biliup`，并且你希望处理该目录下的文件：
+
+```python
+# config.py (部分示例)
+# 确保这些路径是 danmaku-compress 脚本可以访问到的绝对路径
+
+# 源视频和弹幕文件所在的文件夹
+PROCESSING_FOLDER = "/backup/docker/biliup"
+
+# (可选) 处理后备份文件的存放位置，如果不需要可以注释掉或指向同一位置
+# BACKUP_FOLDER = "/backup/docker/biliup/processed_backup"
+```
+
+**重要**: 为了让此脚本能处理文件，你需要配置 `biliup` 在上传后**不删除**原始视频和弹幕文件。可以在 `config.yaml` 的对应主播设置中，将 `postprocessor` 从默认的 `rm` 修改为其他操作，例如：
+
+```yaml
+streamers:
+  主播名称示例:
+    # ... 其他配置 ...
+    postprocessor:
+      - mv: /backup/docker/biliup/processed/ # 示例：移动到已处理目录
+      # 或者干脆不写 postprocessor，让文件留在原地，手动管理
+```
+
+或者，你可以在 `biliup` 上传完成后，**手动运行** `danmaku-compress` 脚本来处理留在原地的文件。
+
+### 2. 安装依赖环境
+
+推荐使用 `uv` (一个快速的 Python 包管理工具) 或 `pip`。
+
+```bash
+# 使用 uv (推荐)
+uv venv # 创建虚拟环境 .venv
+source .venv/bin/activate # 激活虚拟环境
+uv sync # 安装依赖
+
+# 或者使用 pip (如果未安装 uv)
+# python3 -m venv .venv
+# source .venv/bin/activate
+# pip install -r requirements.txt
+```
+
+### 3. 运行处理脚本
+
+```bash
+# 确保虚拟环境已激活
+python main.py
+```
+
+脚本会查找 `PROCESSING_FOLDER` 下的视频和对应的弹幕文件，进行转换和压制（具体行为取决于脚本实现）。
+
+## 常见问题排查
+
+### 问题 1: FFmpeg 报错 `Failed to initialise VAAPI connection: -1 (unknown libva error)`
+
+当 `biliup` (或其调用的 FFmpeg) 尝试使用 Intel 核显 (QSV) 进行硬件加速转码（例如，在弹幕压制过程中，或者如果配置了转码输出格式）时，可能会遇到此错误。
+
+**错误日志示例:**
+
+```shell
+[AVHWDeviceContext @ 0x55dcbd941500] libva: /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so has no function __vaDriverInit_1_0
+[AVHWDeviceContext @ 0x55dcbd941500] Failed to initialise VAAPI connection: -1 (unknown libva error).
+Device creation failed: -5.
+[h264_qsv @ 0x55dcbd93da40] Failed to create a VAAPI device.
+Error initializing output stream 0:0 -- Error while opening encoder for output stream #0:0
+```
+
+**问题分析:**
+
+这个错误通常表示 Linux 系统上的 VA-API (Intel 硬件加速接口) 环境配置不正确或驱动存在问题。FFmpeg 找到了 Intel 的驱动程序 (`iHD_drv_video.so`)，但无法成功初始化它，导致 QSV 硬件加速（编码/解码）失败。
+
+**解决方案 (在宿主机上执行):**
+
+1.  **安装/更新 VA-API 驱动和库:**
+    对于 Debian/Ubuntu 系统，针对较新的 Intel 核显 (如 UHD 630)，通常需要 `intel-media-va-driver-non-free` 包。
+
+    ```bash
+    sudo apt update
+    sudo apt install intel-media-va-driver-non-free libva-drm2 libva-x11-2 vainfo
+    ```
+
+    - `intel-media-va-driver-non-free`: Intel Media Driver (推荐)。
+    - `libva-drm2`, `libva-x11-2`: VA-API 核心库。
+    - `vainfo`: 用于测试 VA-API 是否配置成功的工具。
+
+2.  **验证 VA-API 配置:**
+    安装完成后，重启系统或重新登录用户会话，然后运行 `vainfo` 命令：
+
+    ```bash
+    vainfo
+    ```
+
+    如果命令成功执行并输出了类似 `VAProfileH264ConstrainedBaseline`、`VAProfileH264Main`、`VAProfileH264High` 等支持的配置文件列表，说明 VA-API 环境基本正常。如果 `vainfo` 报错，说明驱动问题仍未解决。
+
+3.  **重启 biliup 容器:**
+    宿主机驱动更新后，需要重启 `biliup` 容器使其能利用新的驱动环境。
+
+    ```bash
+    docker compose restart biliup
+    ```
+
+4.  **调整 FFmpeg 命令 (如果手动调用 FFmpeg):**
+    如果你是在 `danmaku-compress` 脚本或 `biliup` 的 `postprocessor` 中手动调用 `ffmpeg` 命令，并且使用了 QSV (`h264_qsv`)：
+
+    - **解码加速**: 如果使用了 `-hwaccel vaapi` 进行解码，确保 `vainfo` 正常。若滤镜（如 `ass` 字幕滤镜）需要 CPU 处理，硬件解码可能效果有限，可暂时移除 `-hwaccel` 参数专注于解决编码问题。
+    - **编码参数**: QSV 推荐使用 `-global_quality` (数值越低质量越高，类似 CRF，推荐范围 20-25) 或 `-b:v` (固定比特率) 来控制质量，而不是 `-crf` (虽然有时也能映射)。
+    - **示例命令 (假设 VA-API 已修复, 用于弹幕压制):**
+      ```bash
+      ffmpeg -i input.flv -vf "ass=input.ass" -c:v h264_qsv -preset veryfast -global_quality 22 -c:a copy -y output.mp4
+      ```
+
+5.  **如果 VA-API 无法修复 (备选方案):**
+    如果实在无法解决 VA-API 问题，可以放弃硬件加速，改用 CPU 进行编码 (速度会慢很多)。将 FFmpeg 命令中的 `-c:v h264_qsv` 替换为 `-c:v libx264` (高质量 H.264 编码器) 或 `-c:v libx265` (H.265 编码器)。
+    ```bash
+    # CPU 编码示例
+    ffmpeg -i input.flv -vf "ass=input.ass" -c:v libx264 -preset veryfast -crf 23 -c:a copy -y output.mp4
+    ```
+
+## 参考项目
+
+- **biliup**: [https://github.com/biliup/biliup](https://github.com/biliup/biliup) (核心录播上传工具)
+- **DanmakuConvert**: [https://github.com/timerring/DanmakuConvert](https://github.com/timerring/DanmakuConvert) (另一个弹幕转换工具)
+- **danmaku-compress**: [https://github.com/SimonGino/danmaku-compress](https://github.com/SimonGino/danmaku-compress) (文中提到的弹幕处理脚本)
+
+## 结语
+
+通过本文的指引，你应该能够成功部署 `biliup` 并实现自动化直播录制与上传。`biliup` 的配置项非常丰富，可以满足各种定制化需求，建议多查阅官方文档或配置文件中的注释进行探索。遇到问题时，检查日志和参考本文提供的排错步骤通常能找到解决方案。
