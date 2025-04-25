@@ -330,6 +330,45 @@ Error initializing output stream 0:0 -- Error while opening encoder for output s
 - **DanmakuConvert**: [https://github.com/timerring/DanmakuConvert](https://github.com/timerring/DanmakuConvert) (另一个弹幕转换工具)
 - **danmaku-compress**: [https://github.com/SimonGino/danmaku-compress](https://github.com/SimonGino/danmaku-compress) (文中提到的弹幕处理脚本)
 
+### 问题2：video_encoder关于弹幕ASS字幕渲染过程中的字体问题
+
+这些警告是关于弹幕ASS字幕渲染过程中的字体问题：
+
+```
+[Parsed_ass_0 @ 0x557dc1660c00] Glyph 0x3008 not found, selecting one more font for (Microsoft YaHei, 400, 0)
+[Parsed_ass_0 @ 0x557dc1660c00] fontselect: failed to find any fallback with glyph 0x3008 for font: (Microsoft YaHei, 400, 0)
+```
+
+出现这个警告的原因：
+
+1. 系统中没有安装"Microsoft YaHei"(微软雅黑)字体
+2. 字符0x3008(Unicode左尖括号"〈")在当前字体中找不到
+3. 系统也没有找到可以显示这个字符的备选字体
+
+解决方法：
+
+1. 在系统中安装微软雅黑字体：
+
+   ```
+   sudo apt-get install fonts-wqy-microhei   # Debian/Ubuntu系统
+   ```
+
+2. 修改ASS字幕使用其他更常见的字体：
+
+   ```python
+   def convert_to_ass(xml_file, ass_file):
+       # 修改转换参数，指定更通用的字体
+       font_name = "WenQuanYi Micro Hei"  # 文泉驿微米黑，Linux上常见
+       # ... 其他代码 ...
+   ```
+
+3. 在压制命令中指定字体目录：
+   ```
+   ffmpeg ... -vf "ass='字幕文件':fontsdir='/path/to/fonts'" ...
+   ```
+
+这些警告通常不会影响视频压制的整体过程和质量，但可能导致某些特殊字符在弹幕中显示为方块或不正确。如果您不在意这些特殊字符的显示，可以忽略这些警告。
+
 ## 结语
 
 通过本文的指引，你应该能够成功部署 `biliup` 并实现自动化直播录制与上传。`biliup` 的配置项非常丰富，可以满足各种定制化需求，建议多查阅官方文档或配置文件中的注释进行探索。遇到问题时，检查日志和参考本文提供的排错步骤通常能找到解决方案。
