@@ -7,11 +7,10 @@ featured: false
 draft: false
 category: database
 tags:
-
   - 限流
   - redis
   - ratelimiter
-    description: 本文介绍如何基于Redisson的RRateLimiter实现分布式令牌桶限流，为你的Java应用保驾护航。
+description: 本文介绍如何基于Redisson的RRateLimiter实现分布式令牌桶限流，为你的Java应用保驾护航。
 ---
 
 <!-- more -->
