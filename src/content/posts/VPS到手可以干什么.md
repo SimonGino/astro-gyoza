@@ -103,7 +103,7 @@ ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport 50020:50030 -j REDIRECT --
       "listen_port": 50001,
       "users": [
         {
-          "password": "simon1122qaz"
+          "password": "admin123"
         }
       ],
       "tls": {
@@ -121,7 +121,7 @@ ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport 50020:50030 -j REDIRECT --
       "down_mbps": 100,
       "users": [
         {
-          "password": "simon1122qaz"
+          "password": "admin123"
         }
       ],
       "tls": {

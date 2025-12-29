@@ -2,6 +2,7 @@
 title: sing-box使用入门
 author: Jinx
 date: 2025-08-30
+lastMod: 2025-12-29T14:34:00.000Z
 slug: sing-box-usage-guide
 featured: false
 draft: false
@@ -83,9 +84,9 @@ sing-box run -c /usr/local/etc/sing-box/config.json
 mkdir -p /etc/hysteria
 # 生成证书
 openssl req -x509 -nodes -newkey ec:<(openssl ecparam -name prime256v1) -keyout /etc/hysteria/server.key -out /etc/hysteria/server.crt -subj "/CN=bing.com" -days 36500 && chown hysteria /etc/hysteria/server.key && chown hysteria /etc/hysteria/server.crt
-# 端口转发
-
 ```
+
+端口转发
 
 ```shell
 iptables -t nat -A PREROUTING -i eth0 -p udp --dport 50020:50030 -j REDIRECT --to-ports 50003
@@ -123,16 +124,34 @@ ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport 50020:50030 -j REDIRECT --
 
 ### 常用 inbound 片段参考
 
+socks5:
+
+```json
+{
+  "type": "socks",
+  "listen": "::",
+  "listen_port": 1080,
+  "users": [
+    {
+      "username": "admin",
+      "password": "admin"
+    }
+  ]
+}
+```
+
 Shadowsocks：
 
 ```json
 {
   "type": "shadowsocks",
-  "tag": "ss-in",
-  "listen": "0.0.0.0",
-  "listen_port": 40001,
+  "listen": "::",
+  "listen_port": 80,
   "method": "2022-blake3-aes-128-gcm",
-  "password": "REPLACE_ME"
+  "password": "", // 执行 sing-box generate rand 16 --base64 生成
+  "multiplex": {
+    "enabled": true
+  }
 }
 ```
 
@@ -141,13 +160,66 @@ Trojan：
 ```json
 {
   "type": "trojan",
-  "tag": "trojan-in",
+  "listen": "::",
+  "listen_port": 443,
+  "users": [
+    {
+      "password": ""
+    }
+  ],
+  "tls": {
+    "enabled": true,
+    "certificate_path": "/root/fullchain.cer",
+    "key_path": "/root/private.key"
+  },
+  "multiplex": {
+    "enabled": true
+  }
+}
+```
+
+Hysteria2：
+
+```json
+{
+  "type": "hysteria2",
+  "listen": "::",
+  "listen_port": 443,
+  "up_mbps": 100,
+  "down_mbps": 20,
+  "users": [
+    {
+      "password": ""
+    }
+  ],
+  "tls": {
+    "enabled": true,
+    "alpn": ["h3"],
+    "certificate_path": "/root/fullchain.cer",
+    "key_path": "/root/private.key"
+  }
+}
+```
+
+anytls:
+
+```json
+{
+  "type": "anytls",
+  "tag": "anytls-in",
   "listen": "0.0.0.0",
-  "listen_port": 4443,
-  "password": ["PASS1"],
-  "transport": {
-    "type": "ws",
-    "path": "/t"
+  "listen_port": 50003,
+  "users": [
+    {
+      "name": "",
+      "password": "password"
+    }
+  ],
+  "tls": {
+    "enabled": true,
+    "server_name": "bing.com",
+    "certificate_path": "/etc/hysteria/server.crt",
+    "key_path": "/etc/hysteria/server.key"
   }
 }
 ```
